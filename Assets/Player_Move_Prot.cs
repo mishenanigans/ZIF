@@ -9,11 +9,15 @@ public class Player_Move_Prot : MonoBehaviour
     public int playerspeed = 50;
     private bool facingRight = false;
     public int playerJumpPower = 1250;
+    private bool isGrounded;
+    private Rigidbody2D myRig;
+    public float base_speed = 3.0f;
+    public float max_speed = 6.0f;
 
     // Use this for initialization
     void Start()
     {
-
+        myRig = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -25,6 +29,7 @@ public class Player_Move_Prot : MonoBehaviour
         {
             Jump();
         }
+
         //ANIMATIONS
         //PLAYER DIRECTION
         if (moveX < 0.0f && facingRight == false)
@@ -36,13 +41,26 @@ public class Player_Move_Prot : MonoBehaviour
             FlipPlayer();
         }
         //PHYSICS
-        gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(moveX * playerspeed, gameObject.GetComponent<Rigidbody2D>().velocity.y);
+        myRig.velocity = new Vector2(moveX * playerspeed, myRig.velocity.y);
+        //Attempt at momentum
+        //if (myRig.velocity.x < max_speed)
+        // {
+        //     myRig.velocity = new Vector2(1 * Time.deltaTime, myRig.velocity.y);
+        // }
+        //else if (myRig.velocity.x > base_speed)
+        // {
+        //     myRig.velocity = new Vector2 (-(1 * Time.deltaTime), myRig.velocity.y);
+        //}
     }
 
     void Jump()
     {
         //JUMPING COD
-        GetComponent<Rigidbody2D>().AddForce(Vector2.up * playerJumpPower);
+        if (isGrounded)
+        {
+            isGrounded = true;
+        }
+        myRig.AddForce(Vector2.up * playerJumpPower);
     }
 
     void FlipPlayer()
@@ -51,5 +69,12 @@ public class Player_Move_Prot : MonoBehaviour
         Vector2 localScale = gameObject.transform.localScale;
         localScale.x *= -1;
         transform.localScale = localScale;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (GetComponent<Collider2D>().tag == "floor")
+        {
+            isGrounded = true;
+        }
     }
 }
